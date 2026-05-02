@@ -1,6 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
+
 import { fetchNotifications } from "@/services/notificationService";
 import { Notification } from "@/types/notification";
 
@@ -16,13 +27,9 @@ export default function Home() {
     const loadNotifications = async () => {
       try {
         const data = await fetchNotifications();
-
-        console.log(data);
-
         setNotifications(data || []);
       } catch (error) {
         console.log(error);
-        setNotifications([]);
       }
     };
 
@@ -70,100 +77,106 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <h1 className="text-4xl font-bold text-center mb-10">
-        Campus Notification System
-      </h1>
-
-      <div className="flex gap-4 justify-center mb-8 flex-wrap">
-        {["All", "Placement", "Result", "Event"].map((type) => (
-          <button
-            key={type}
-            onClick={() => {
-              setSelectedType(type);
-              setCurrentPage(1);
-            }}
-            className={`px-4 py-2 rounded-lg border ${
-              selectedType === type
-                ? "bg-white text-black"
-                : "border-gray-600"
-            }`}
-          >
-            {type}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-4">
-        {paginatedNotifications.map((notification) => {
-          const isViewed = viewedNotifications.includes(
-            notification.ID
-          );
-
-          return (
-            <div
-              key={notification.ID}
-              onClick={() => markAsViewed(notification.ID)}
-              className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                isViewed
-                  ? "border-gray-700 opacity-50"
-                  : "border-yellow-500 bg-yellow-500/10"
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Campus Notification System
+        </h1>
+  
+        <div className="flex gap-3 flex-wrap justify-center mb-6">
+          {["All", "Placement", "Result", "Event"].map((type) => (
+            <button
+              key={type}
+              onClick={() => {
+                setSelectedType(type);
+                setCurrentPage(1);
+              }}
+              className={`px-4 py-2 rounded-md border text-sm font-medium transition ${
+                selectedType === type
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
               }`}
             >
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">
-                  {notification.Type}
-                </h2>
-
-                {!isViewed && (
-                  <span className="text-yellow-400 text-sm">
-                    Unread
-                  </span>
-                )}
+              {type}
+            </button>
+          ))}
+        </div>
+  
+        <div className="space-y-4">
+          {paginatedNotifications.map((notification) => {
+            const isViewed = viewedNotifications.includes(
+              notification.ID
+            );
+  
+            return (
+              <div
+                key={notification.ID}
+                onClick={() => markAsViewed(notification.ID)}
+                className={`rounded-lg border p-4 shadow-sm cursor-pointer transition ${
+                  isViewed
+                    ? "bg-gray-200 border-gray-300 opacity-70"
+                    : "bg-white border-gray-200 hover:shadow-md"
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      {notification.Type}
+                    </h2>
+  
+                    <p className="text-gray-700 mt-1">
+                      {notification.Message}
+                    </p>
+                  </div>
+  
+                  {!isViewed && (
+                    <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full">
+                      New
+                    </span>
+                  )}
+                </div>
+  
+                <p className="text-sm text-gray-500 mt-3">
+                  {notification.Timestamp}
+                </p>
               </div>
-
-              <p>{notification.Message}</p>
-
-              <p className="text-sm text-gray-400 mt-2">
-                {notification.Timestamp}
-              </p>
-            </div>
-          );
-        })}
-      </div>
-
-      {filteredNotifications.length === 0 && (
-        <p className="text-center text-gray-400 mt-10">
-          No notifications found
-        </p>
-      )}
-
-      <div className="flex justify-center gap-4 mt-10">
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.max(prev - 1, 1))
-          }
-          disabled={currentPage === 1}
-          className="px-4 py-2 border rounded-lg disabled:opacity-40"
-        >
-          Previous
-        </button>
-
-        <p className="flex items-center">
-          Page {currentPage} of {totalPages}
-        </p>
-
-        <button
-          onClick={() =>
-            setCurrentPage((prev) =>
-              Math.min(prev + 1, totalPages)
-            )
-          }
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 border rounded-lg disabled:opacity-40"
-        >
-          Next
-        </button>
+            );
+          })}
+        </div>
+  
+        {filteredNotifications.length === 0 && (
+          <p className="text-center text-gray-500 mt-10">
+            No notifications available
+          </p>
+        )}
+  
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.max(prev - 1, 1))
+            }
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-md border bg-white disabled:opacity-50"
+          >
+            Previous
+          </button>
+  
+          <span className="text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+  
+          <button
+            onClick={() =>
+              setCurrentPage((prev) =>
+                Math.min(prev + 1, totalPages)
+              )
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 rounded-md border bg-white disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
